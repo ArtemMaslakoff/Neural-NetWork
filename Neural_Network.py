@@ -1,4 +1,4 @@
-from email import feedparser
+from ssl import ALERT_DESCRIPTION_DECOMPRESSION_FAILURE
 import numpy as np
 
 class Neuron:
@@ -92,85 +92,80 @@ class MaxNet:
 
 
 class HemmingNet:
-    def __init__(self):
+    def __init__(self, teacher):
         self.maxNet = MaxNet()
 
-        weights = np.array([-1,1])
-        bias = 0
-        self.h1 = Neuron(weights, bias, "Or01")
+        self.HemmingLay = []
+        for i in range (0, len(teacher)):
+            bias = 0
+            self.HemmingLay.append(Neuron(teacher[i], bias, "X"))
 
     def feedForward(self, x):
-        out_o1 = x[0];
-        for i in range (len(x) - 1):
-            out_o1 = self.comparator.feedForward([out_o1, x[i+1]])
+        hemingLayOuts = []
+        for i in range (0, len(self.HemmingLay)):
+            hemingLayOuts.append(self.HemmingLay[i].feedforward(x))
 
-        result = []
-        for i in range (0, len(x)):
-            result.append(self.h1.feedforward([out_o1, x[i]]))
-        return [out_o1, result]
-
-
-
-#class NeuralNetwork:
-#    def __init__(self):
-#        weights = np.array([0,1])
-#        bias = 0
-
-#        self.h1 = Neuron(weights, bias, "Sigmoid")
-#        self.h2 = Neuron(weights, bias, "Sigmoid")
-#        self.o1 = Neuron(weights, bias, "Sigmoid")
-
-#    def feedForward(self, x):
-#        out_h1 = self.h1.feedforward(x)
-#        out_h2 = self.h2.feedforward(x)
-
-#        out_o1 = self.o1.feedforward(np.array([out_h1, out_h2]))
-
-#        return out_o1
-
-
-
-#class Perceptron:
-#    def __init__(self, ):
-#        weights = np.array([1,1,1,1])
-#        bias = 0
-#        self.h1 = Neuron(weights, bias, "Or01")
-
-#    def feedForward(self, x):
-#        out_h1 = self.h1.feedforward(x)
-
-#        out_o1 = self.o1.feedforward([out_h1,out_h2,out_h3,out_h4,out_h5,out_h6])
-#        return out_o1
+        return self.maxNet.feedForward(hemingLayOuts)
     
-    #def CalculateError(self):
-
-    #def Teach(self, countOfEpochs, teacher, answers):
-    #    for i in range(countOfEpochs):
-    #        error = 0
-    #        for j in range(len(teacher)):
-    #            error += self.feedForward(teacher[j]) - answers[j]
-    #        print(error)
-    #        self.ChangeWeights(error)
 
 
+class Perceptron:
+    def __init__(self):
+        weights = [1,0]
+        bias = 0
+        self.h1 = Neuron(weights, bias, "Sigmoid")
+
+        weights = [1]
+        bias = -0.5
+        self.o1 = Neuron(weights, bias, "Or01")
+
+    def feedForward(self, x):
+        out_h1 = self.h1.feedforward(x)
+        return self.o1.feedforward(out_h1)
+        #return out_h1
+
+    def teach(self, teacher, answers, stepLength, countOfSteps):
+        for i in range (0, countOfSteps):
+            print(self.h1.weights)
+            for j in range (0, len(answers)):
+                self.h1.weights[0] = self.h1.weights[0] - stepLength * self.h1.weights[0] * teacher[j][0]
+                self.h1.weights[1] = self.h1.weights[1] - stepLength * self.h1.weights[0] * teacher[j][1]
+                #self.h1.weights[1] = self.h1.weights[1] - stepLength * 2 * (self.h1.weights[0] * teacher[j][0] + self.h1.weights[1] * teacher[j][1] - answers[j]) * teacher[j][1]
 
 
 ## MAIN ##
 
-network = Comparator()
-x = np.array([34, 5])
-print(network.feedForward(x))
+#network = Comparator()
+#x = np.array([34, 5])
+#print(network.feedForward(x))
 
 
-maxnet = MaxNet()
-x = np.array([-12,0,87,-23,-99,-1,87])
-print(maxnet.feedForward(x));
+#maxnet = MaxNet()
+#x = np.array([-12,0,-87,-23,-99,-1,-87])
+#print(maxnet.feedForward(x));
 
 
-#teacher = ([0,0,0,0],[0,1,0,0],[1,0,0,0],[1,1,0,0],
-#           [0,0,0,1],[0,1,0,1],[1,0,0,1],[1,1,0,1],
-#           [0,0,1,0],[0,1,1,0],[1,0,1,0],[1,1,1,0],
-#           [0,0,1,1],[0,1,1,1],[1,0,1,1],[1,1,1,1])
-#answers = ([0,0,0,1,0,1,1,0,0,1,1,0,1,0,0,0])
-#perc = Perceptron()
-#perc.Teach(10, teacher, answers);
+#teacher = ([1,1,1,1,1,1],[1,-1,1,-1,-1,1])
+#x = [-1,1,1,-1,1,1]
+#hem = HemmingNet(teacher)
+#print(hem.feedForward(x))
+
+
+
+#teacher = ([0,0],
+#           [0,1],
+#           [1,0],
+#           [1,1])
+#answers = [1,1,0,0]
+#per = Perceptron()
+#per.teach(teacher, answers, 0.2, 50)
+#x = [0,0]
+#print(per.feedForward(x))
+#x = [0,1]
+#print(per.feedForward(x))
+#x = [1,0]
+#print(per.feedForward(x))
+#x = [1,1]
+#print(per.feedForward(x))
+
+teacher = ([])
